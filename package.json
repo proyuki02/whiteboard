@@ -1,19 +1,16 @@
 {
   "name": "whiteboard",
-  "version": "1.0.0",
-  "description": "A simple collaborative whiteboard using socket.io",
+  "version": "0.1.0",
+  "description": "A simple collaborative whiteboard",
   "main": "index.js",
-  "keywords": [
-    "socket.io",
-    "whiteboard"
-  ],
   "dependencies": {
     "express": "4.9.x",
-    "socket.io": "latest"
+    "ioredis": "^4.16.1",
+    "socket.io": "^2.3.0"
   },
   "scripts": {
     "start": "node index"
   },
-  "author": "Damien Arrachequesne",
+  "author": "proyuki02",
   "license": "MIT"
 }
