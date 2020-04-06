@@ -19,8 +19,14 @@ const signatureFormat = (signature) => {
     width: PEN_WIDTH,
     mode: "pen",
   };
-  setCursor();
-  setTimeout(setCursor(), 1000);
+  WebFont.load({
+    custom: {
+      families: ["Font Awesome 5 Free"],
+    },
+    active: function () {
+      setCursor();
+    },
+  });
   let drawing = false;
 
   const canvas = document.getElementById("whiteboard");
