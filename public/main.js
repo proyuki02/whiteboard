@@ -6,6 +6,23 @@ const ERASER_WIDTH = 50;
 const signatureFormat = (signature) => {
   return signature.length > 0 ? `(${signature})` : "";
 };
+toastr.options = {
+  closeButton: false,
+  debug: false,
+  newestOnTop: false,
+  progressBar: true,
+  positionClass: "toast-bottom-center",
+  preventDuplicates: true,
+  onclick: null,
+  showDuration: "300",
+  hideDuration: "1000",
+  timeOut: "3000",
+  extendedTimeOut: "1000",
+  showEasing: "swing",
+  hideEasing: "linear",
+  showMethod: "fadeIn",
+  hideMethod: "fadeOut",
+};
 
 (function () {
   const MENU_HEIGHT = 20;
@@ -52,8 +69,9 @@ const signatureFormat = (signature) => {
   socket.on("drawLine", drawLine);
   socket.on("updateNote", updateNote);
   socket.on("deleteNote", deleteNote);
-  socket.on("reload", () => {
-    window.location.reload();
+  socket.on("clearBourd", () => {
+    clearBourd();
+    toastr.info("Someone cleared the board.", "Infomation");
   });
   socket.emit("load", null, (data) => {
     const { lineHist, noteList } = data;
@@ -64,6 +82,16 @@ const signatureFormat = (signature) => {
       updateNote(noteList[key]);
     }
   });
+
+  function clearBourd() {
+    context.clearRect(
+      0,
+      0,
+      context.canvas.clientWidth,
+      context.canvas.clientHeight
+    );
+    $(".clone-note").remove();
+  }
 
   function drawLine(data, emit) {
     context.beginPath();
@@ -86,6 +114,7 @@ const signatureFormat = (signature) => {
       note = $("#note-origin").clone();
       note.attr("id", id);
       note.removeClass("hidden");
+      note.addClass("clone-note");
       note.draggable({
         dragstart: () => emitNoteState(note),
         drag: () => emitNoteState(note),
@@ -223,11 +252,20 @@ const signatureFormat = (signature) => {
   }
 
   function onClearBourd() {
-    if (confirm("CLEAR the board. Are you okay?")) {
-      socket.emit("onClearBourd", null, () => {
-        window.location.reload();
-      });
-    }
+    $.confirm({
+      theme: "supervan",
+      icon: "fas fa-exclamation-triangle",
+      title: "CONFIRM",
+      content: "CLEAR the board. Are you okay?",
+      buttons: {
+        ok: function () {
+          socket.emit("clearBourd", null, () => {
+            clearBourd();
+          });
+        },
+        cancel: function () {},
+      },
+    });
   }
 
   // limit the number of events per second

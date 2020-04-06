@@ -60,13 +60,13 @@ function onConnection(socket) {
     saveNote();
   });
 
-  socket.on("onClearBourd", (data, ack) => {
+  socket.on("clearBourd", (data, ack) => {
     lineHist = [];
     noteList = {};
     ack({ status: "OK" });
     saveLine();
     saveNote();
-    socket.broadcast.emit("reload");
+    socket.broadcast.emit("clearBourd");
   });
 }
 io.on("connection", onConnection);
