@@ -20,6 +20,7 @@ const signatureFormat = (signature) => {
     mode: "pen",
   };
   setCursor();
+  setTimeout(setCursor(), 1000);
   let drawing = false;
 
   const canvas = document.getElementById("whiteboard");
@@ -45,6 +46,9 @@ const signatureFormat = (signature) => {
   socket.on("drawLine", drawLine);
   socket.on("updateNote", updateNote);
   socket.on("deleteNote", deleteNote);
+  socket.on("reload", () => {
+    window.location.reload();
+  });
   socket.emit("load", null, (data) => {
     const { lineHist, noteList } = data;
     for (let line of lineHist) {

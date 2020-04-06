@@ -66,6 +66,7 @@ function onConnection(socket) {
     ack({ status: "OK" });
     saveLine();
     saveNote();
+    socket.broadcast.emit("reload");
   });
 }
 io.on("connection", onConnection);
