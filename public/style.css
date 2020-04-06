@@ -4,6 +4,10 @@
 textarea {
   border: 1px solid lightgray;
   display: block; /* for zero padding of chrome */
+  resize: both !important;
+  min-height: 50px;
+  min-width: 50px;
+  width: 120px;
 }
 
 html,
@@ -125,8 +129,4 @@ body {
 }
 .note:hover .delete-note {
   visibility: visible;
-}
-
-.note .expanding {
-  resize: both !important;
 }

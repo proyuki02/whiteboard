@@ -98,7 +98,7 @@ const signatureFormat = (signature) => {
       });
 
       const textarea = note.find(".expanding");
-      autosize(textarea);
+      setTimeout(() => autosize(textarea), 0);
       $("#sticky-note-container").append(note);
       if (emit) {
         setTimeout(() => {
