@@ -55,12 +55,12 @@ body {
 }
 
 .colors,
-.stickers {
+.sticky-notes {
   margin-bottom: 20px;
 }
 
 .color,
-.sticker {
+.sticky-note {
   text-align: center;
   font-size: 24px;
   width: 40px;
@@ -68,11 +68,11 @@ body {
   cursor: pointer;
 }
 .color > i,
-.sticker > i {
+.sticky-note > i {
   vertical-align: sub;
 }
 .color:hover,
-.sticker:hover {
+.sticky-note:hover {
   background-color: #4cdbc4;
 }
 
@@ -95,10 +95,10 @@ body {
   color: black;
 }
 
-.sticker.hotpink {
+.sticky-note.hotpink {
   color: hotpink;
 }
-.sticker.gold {
+.sticky-note.gold {
   color: gold;
 }
 

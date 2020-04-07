@@ -63,7 +63,7 @@ toastr.options = {
   canvas.addEventListener("touchmove", throttle(onMouseMove, 10), false);
 
   $(".colors").click(onPenSelect);
-  $(".stickers").click(onStickerSelect);
+  $(".sticky-notes").click(onStickyNoteSelect);
   $("#clear-button").click(onClearBourd);
 
   socket.on("drawLine", drawLine);
@@ -233,10 +233,10 @@ toastr.options = {
     setCursor();
   }
 
-  function onStickerSelect(e) {
+  function onStickyNoteSelect(e) {
     const color = e.target.getAttribute("data-color");
     current.color = color;
-    current.mode = "sticker";
+    current.mode = "sticky-note";
     setCursor();
   }
 
@@ -254,8 +254,8 @@ toastr.options = {
   function onClearBourd() {
     $.confirm({
       theme: "supervan",
-      icon: "fas fa-exclamation-triangle",
-      title: "CONFIRM",
+      icon: "fas fa-trash",
+      title: "CLEAR",
       content: "CLEAR the board. Are you okay?",
       buttons: {
         ok: function () {
