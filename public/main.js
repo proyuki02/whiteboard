@@ -117,10 +117,15 @@ toastr.options = {
       note.attr("id", id);
       note.removeClass("hidden");
       note.addClass("clone-note");
+
+      const textarea = note.find(".expanding");
       note.draggable({
-        dragstart: () => emitNoteState(note),
+        start: () => emitNoteState(note),
         drag: () => emitNoteState(note),
-        dragstop: () => emitNoteState(note),
+        stop: () => {
+          textarea.focus();
+          emitNoteState(note);
+        },
       });
 
       const delButton = note.find(".delete-note");
@@ -128,7 +133,6 @@ toastr.options = {
         deleteNote({ id }, true);
       });
 
-      const textarea = note.find(".expanding");
       setTimeout(() => autosize(textarea), 0);
       $("#sticky-note-container").append(note);
       if (emit) {
