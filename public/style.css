@@ -60,7 +60,8 @@ body {
 }
 
 .color,
-.sticky-note {
+.sticky-note,
+.hand {
   text-align: center;
   font-size: 24px;
   width: 40px;
@@ -68,11 +69,13 @@ body {
   cursor: pointer;
 }
 .color > i,
-.sticky-note > i {
+.sticky-note > i,
+.hand > i {
   vertical-align: sub;
 }
 .color:hover,
-.sticky-note:hover {
+.sticky-note:hover,
+.hand:hover {
   background-color: #4cdbc4;
 }
 
@@ -100,6 +103,10 @@ body {
 }
 .sticky-note.gold {
   color: gold;
+}
+
+.hand {
+  color: black;
 }
 
 #sticky-note-container {

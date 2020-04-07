@@ -45,6 +45,7 @@ toastr.options = {
     },
   });
   let drawing = false;
+  let handing = false;
 
   const canvas = document.getElementById("whiteboard");
   const context = canvas.getContext("2d");
@@ -64,6 +65,7 @@ toastr.options = {
 
   $(".colors").click(onPenSelect);
   $(".sticky-notes").click(onStickyNoteSelect);
+  $(".hand").click(onHandSelect);
   $("#clear-button").click(onClearBourd);
 
   socket.on("drawLine", drawLine);
@@ -174,53 +176,70 @@ toastr.options = {
     }
   }
 
-  function onMouseDown(e) {
+  function saveCurrentPosition(e) {
     current.x = e.pageX || e.touches[0].pageX;
     current.y = e.pageY || e.touches[0].pageY;
+  }
+
+  function onMouseDown(e) {
+    $(".note").css("pointer-events", "none");
+    saveCurrentPosition(e);
     if (current.mode === "pen") {
       drawing = true;
-      $(".note").css("pointer-events", "none");
+      handing = false;
+    } else if (current.mode === "hand") {
+      handing = true;
+      drawing = false;
+      current.mode = "rock";
+      setCursor();
     } else {
       onNoteCreate();
     }
   }
 
   function onMouseUp(e) {
-    if (!drawing) {
-      return;
-    }
-    drawing = false;
     $(".note").css("pointer-events", "auto");
-    drawLine(
-      {
-        x0: current.x,
-        y0: current.y,
-        x1: e.pageX || e.touches[0].pageX,
-        y1: e.pageY || e.touches[0].pageY,
-        color: current.color,
-        width: current.width,
-      },
-      true
-    );
+    if (drawing) {
+      drawing = false;
+      drawLine(
+        {
+          x0: current.x,
+          y0: current.y,
+          x1: e.pageX || e.touches[0].pageX,
+          y1: e.pageY || e.touches[0].pageY,
+          color: current.color,
+          width: current.width,
+        },
+        true
+      );
+    }
+    if (handing) {
+      handing = false;
+      current.mode = "hand";
+      setCursor();
+    }
   }
 
   function onMouseMove(e) {
-    if (!drawing) {
-      return;
+    const x0 = current.x;
+    const y0 = current.y;
+    const x1 = e.pageX || e.touches[0].pageX;
+    const y1 = e.pageY || e.touches[0].pageY;
+    if (drawing) {
+      drawLine(
+        { x0, y0, x1, y1, color: current.color, width: current.width },
+        true
+      );
     }
-    drawLine(
-      {
-        x0: current.x,
-        y0: current.y,
-        x1: e.pageX || e.touches[0].pageX,
-        y1: e.pageY || e.touches[0].pageY,
-        color: current.color,
-        width: current.width,
-      },
-      true
-    );
-    current.x = e.pageX || e.touches[0].pageX;
-    current.y = e.pageY || e.touches[0].pageY;
+    if (handing) {
+      const orgX = $(window).scrollLeft();
+      const orgY = $(window).scrollTop();
+      const newX = orgX + x0 - x1;
+      const newY = orgY + y0 - y1;
+      $(window).scrollLeft(newX);
+      $(window).scrollTop(newY);
+    }
+    saveCurrentPosition(e);
   }
 
   function onPenSelect(e) {
@@ -237,6 +256,12 @@ toastr.options = {
     const color = e.target.getAttribute("data-color");
     current.color = color;
     current.mode = "sticky-note";
+    setCursor();
+  }
+
+  function onHandSelect(e) {
+    current.color = "black";
+    current.mode = "hand";
     setCursor();
   }
 
@@ -283,7 +308,7 @@ toastr.options = {
   function setCursor() {
     const mode = current.mode;
     let color = current.color;
-    let unicode, size, tweakX, tweakY;
+    let unicode, size, tweakX, tweakY, regular;
     if (mode === "pen") {
       if (color === "white") {
         unicode = "\uf12d";
@@ -297,11 +322,23 @@ toastr.options = {
         tweakX = 25;
         tweakY = 25;
       }
-    } else {
+    } else if (mode === "sticky-note") {
       unicode = "\uf249";
       size = 24;
       tweakX = 25;
       tweakY = 25;
+    } else if (mode === "hand") {
+      unicode = "\uf256";
+      size = 24;
+      tweakX = 25;
+      tweakY = 25;
+      regular = true;
+    } else if (mode === "rock") {
+      unicode = "\uf255";
+      size = 24;
+      tweakX = 25;
+      tweakY = 25;
+      regular = true;
     }
 
     const canvas = document.createElement("canvas");
@@ -309,7 +346,8 @@ toastr.options = {
     canvas.height = size * 2;
 
     const context = canvas.getContext("2d");
-    context.font = `900 ${size}px "Font Awesome 5 Free"`;
+    const regularFont = regular ? "" : "900";
+    context.font = `${regularFont} ${size}px "Font Awesome 5 Free"`;
     context.fillStyle = color;
     context.fillText(unicode, canvas.width / 2, canvas.width / 2);
 
