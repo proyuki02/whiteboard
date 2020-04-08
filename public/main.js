@@ -25,8 +25,8 @@ toastr.options = {
 };
 
 (function () {
-  const MENU_HEIGHT = 20;
-  const PADDING = 10;
+  const MENU_HEIGHT = 30;
+  const PADDING = 30;
 
   const socket = io();
   const current = {
@@ -272,8 +272,8 @@ toastr.options = {
   function onNoteCreate() {
     const color = current.color === "hotpink" ? "pink" : "lightyellow";
     const id = "note-" + generateUuid();
-    const x = current.x - 80;
-    const y = current.y - 60;
+    const x = current.x - PADDING - 40;
+    const y = current.y - PADDING - MENU_HEIGHT + 5;
     const msg = signatureFormat($("#signature").val());
     const w = $("#note-origin").css("width");
     const h = $("#note-origin").css("height");
