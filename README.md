@@ -31,7 +31,6 @@ $ REDIS_URL=redis://localhost:6379 REDIS_PREFIX=whiteboard- npm start
 
 ## Features
 
-- Works standalone.
 - Draw on the whiteboard and all other users will see you drawings live.
 - Sticky notes with signature support.
 - Redis support (optional).
