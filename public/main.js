@@ -25,7 +25,7 @@ toastr.options = {
 };
 
 (function () {
-  const MENU_HEIGHT = 30;
+  const MENU_HEIGHT = 40;
   const PADDING = 30;
 
   const socket = io();

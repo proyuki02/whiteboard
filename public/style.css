@@ -21,13 +21,11 @@ body {
 }
 html {
   background-image: url("background.jpg");
-  background-color: #181818;
-  background-repeat: no-repeat;
 }
 
 #whiteboard {
   position: absolute;
-  top: 30px;
+  top: 40px;
   left: 0px;
   margin: 30px;
   background-color: white;
@@ -41,20 +39,39 @@ html {
   color: white;
   background-color: rgba(0, 0, 0, 0.2);
 }
+#logo {
+  width: 24px;
+  margin-right: 8px;
+}
 #title {
   font-weight: bold;
 }
 #clear-button {
-  margin-left: 50px;
+  margin-left: 100px;
   cursor: pointer;
+  border: none;
+  padding: 3px 10px;
+  background-color: lightgrey;
 }
 #form-signature {
   padding-left: 20px;
 }
+#signature {
+  border: 0;
+  color: #181818;
+  border: solid 1px #ccc;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  padding: 2px 4px;
+}
+#signature:focus {
+  border: solid 1px #181818;
+}
 
 .tools {
   position: fixed;
-  top: 80px;
+  top: 90px;
   left: 50px;
   z-index: 2000;
 }
@@ -81,7 +98,7 @@ html {
 .color:hover,
 .sticky-note:hover,
 .hand:hover {
-  background-color: #4cdbc4;
+  background-color: #e0f1f8;
 }
 
 .color.black {
