@@ -8,6 +8,8 @@ textarea {
   min-height: 50px;
   min-width: 50px;
   width: 120px;
+  font-size: 11px;
+  font-family: verdana, sans-serif;
 }
 
 html,
@@ -15,7 +17,7 @@ body {
   font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN",
     "Hiragino Sans", Meiryo, sans-serif;
   min-width: 1660px;
-  min-height: 1290px;
+  min-height: 1340px;
   margin: 0;
   padding: 0;
 }
