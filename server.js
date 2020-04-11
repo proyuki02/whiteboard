@@ -15,7 +15,9 @@ const REDIS_TTL_SEC = process.env.REDIS_TTL_SEC || 30 * 24 * 60 * 60; // default
 const { REDIS_URL } = process.env;
 let redis;
 if (REDIS_URL) {
-  console.log(`connect to ${REDIS_URL}. prefix=${REDIS_PREFIX}`);
+  console.log(
+    `connect to ${REDIS_URL}. prefix=${REDIS_PREFIX} ttl=${REDIS_TTL_SEC}`
+  );
   redis = new Redis(REDIS_URL);
 }
 
