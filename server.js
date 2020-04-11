@@ -11,6 +11,7 @@ app.get("/board/*", (req, res, next) => {
 
 const Redis = require("ioredis");
 const REDIS_PREFIX = process.env.REDIS_PREFIX || "whiteboard-";
+const REDIS_TTL_SEC = process.env.REDIS_TTL_SEC || 30 * 24 * 60 * 60; // default: 30 days
 const { REDIS_URL } = process.env;
 let redis;
 if (REDIS_URL) {
@@ -24,7 +25,7 @@ async function saveBoard(boardId) {
   redis &&
     redis.set(
       REDIS_PREFIX + "board-" + boardId,
-      JSON.stringify(boards[boardId])
+      JSON.stringify(boards[boardId], "ex", REDIS_TTL_SEC)
     );
 }
 async function load() {

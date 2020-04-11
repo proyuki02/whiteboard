@@ -29,6 +29,12 @@ Optionally, specify the prefix for the key by specifying the `REDIS_PREFIX` env 
 $ REDIS_URL=redis://localhost:6379 REDIS_PREFIX=whiteboard- npm start
 ```
 
+Optionally, If you want to change the expiration time (seconds) of the board, set the `REDIS_TTL_SEC` env variable. (Default is 30 days)
+
+```
+$ REDIS_URL=redis://localhost:6379 REDIS_TTL_SEC=86400 npm start
+```
+
 ## Features
 
 - Draw on the whiteboard and all other users will see you drawings live.
