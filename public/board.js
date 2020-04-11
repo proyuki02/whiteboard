@@ -27,8 +27,6 @@ toastr.options = {
 (function () {
   const MENU_HEIGHT = 40;
   const PADDING = 30;
-
-  const socket = io();
   const current = {
     x: 0,
     y: 0,
@@ -66,17 +64,34 @@ toastr.options = {
   $(".colors").click(onPenSelect);
   $(".sticky-notes").click(onStickyNoteSelect);
   $(".hand").click(onHandSelect);
-  $("#clear-button").click(onClearBourd);
+  $("#clear-button").click(onClearBoard);
 
+  const path = window.location.pathname;
+  const boardId = path.slice(path.lastIndexOf("/") + 1);
+
+  const socket = io("?boardId=" + boardId);
   socket.on("drawLine", drawLine);
   socket.on("updateNote", updateNote);
   socket.on("deleteNote", deleteNote);
-  socket.on("clearBourd", () => {
-    clearBourd();
+  socket.on("clearBoard", () => {
+    clearBoard();
     toastr.info("Someone cleared the board.", "Infomation");
   });
   socket.emit("load", null, (data) => {
-    const { lineHist, noteList } = data;
+    const { status, lineHist, noteList } = data;
+    if (status === "NOT_FOUND") {
+      $.confirm({
+        theme: "supervan",
+        icon: "fas fa-sad-tear",
+        title: "NOT FOUND",
+        content: "Sorry. The board was not found. Return to the top page.",
+        buttons: {
+          ok: function () {
+            window.location.href = "/";
+          },
+        },
+      });
+    }
     for (let line of lineHist) {
       drawLine(line);
     }
@@ -85,7 +100,7 @@ toastr.options = {
     }
   });
 
-  function clearBourd() {
+  function clearBoard() {
     context.clearRect(
       0,
       0,
@@ -280,16 +295,16 @@ toastr.options = {
     updateNote({ id, x, y, w, h, msg, color }, true);
   }
 
-  function onClearBourd() {
+  function onClearBoard() {
     $.confirm({
       theme: "supervan",
       icon: "fas fa-trash",
       title: "CLEAR",
-      content: "CLEAR the board. Are you okay?",
+      content: "Clear the board. Are you okay?",
       buttons: {
         ok: function () {
-          socket.emit("clearBourd", null, () => {
-            clearBourd();
+          socket.emit("clearBoard", null, () => {
+            clearBoard();
           });
         },
         cancel: function () {},

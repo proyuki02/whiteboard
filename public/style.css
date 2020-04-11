@@ -16,8 +16,6 @@ html,
 body {
   font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN",
     "Hiragino Sans", Meiryo, sans-serif;
-  min-width: 1660px;
-  min-height: 1300px;
   margin: 0;
   padding: 0;
 }
@@ -161,4 +159,32 @@ html {
 }
 .note:hover .delete-note {
   visibility: visible;
+}
+
+/*
+ * Top page
+ */
+.index-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.big-button {
+  margin: 200px 20px;
+  display: inline-block;
+  padding: 10px 100px;
+  text-align: center;
+  font-size: 42px;
+  font-weight: bold;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 40px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+.big-button:hover {
+  color: #444;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(0, 0, 0, 0.5);
 }
