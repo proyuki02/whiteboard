@@ -27,7 +27,9 @@ async function saveBoard(boardId) {
   redis &&
     redis.set(
       REDIS_PREFIX + "board-" + boardId,
-      JSON.stringify(boards[boardId], "ex", REDIS_TTL_SEC)
+      JSON.stringify(boards[boardId]),
+      "ex",
+      REDIS_TTL_SEC
     );
 }
 async function load() {
