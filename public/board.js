@@ -135,8 +135,7 @@ toastr.options = {
 
       const textarea = note.find(".expanding");
       note.draggable({
-        start: () => emitNoteState(note),
-        drag: () => emitNoteState(note),
+        drag: () => limitter(() => emitNoteState(note), 100),
         stop: () => {
           textarea.focus();
           emitNoteState(note);
@@ -163,7 +162,7 @@ toastr.options = {
     const textarea = note.find(".expanding");
     textarea.val(msg);
     textarea.css({ "background-color": color, width: w, height: h });
-    textarea.on("keyup mouseup mouseout mousemove touchend touchmove", () => {
+    textarea.on("keyup mouseup touchend", () => {
       emitNoteState(note);
     });
 
@@ -322,6 +321,15 @@ toastr.options = {
         return callback.apply(null, arguments);
       }
     };
+  }
+
+  let previousTime = 0;
+  function limitter(callback, delay) {
+    const time = new Date().getTime();
+    if (time - previousTime >= delay) {
+      previousTime = time;
+      return callback();
+    }
   }
 
   function setCursor() {
