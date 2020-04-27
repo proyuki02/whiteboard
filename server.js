@@ -52,13 +52,6 @@ async function load() {
 load();
 
 function onConnection(socket) {
-  socket.on("createBoard", (data, ack) => {
-    const boardId = uuidv1();
-    boards[boardId] = { lineHist: [], noteList: {} };
-    ack({ boardId });
-    saveBoard(boardId);
-  });
-
   const { boardId } = socket.handshake.query;
   let lineHist = [];
   let noteList = {};
@@ -66,12 +59,20 @@ function onConnection(socket) {
     lineHist = boards[boardId].lineHist;
     noteList = boards[boardId].noteList;
   }
+  socket.join(boardId);
+  console.log("onConnection", { id: socket.id, boardId });
+
+  socket.on("createBoard", (data, ack) => {
+    const boardId = uuidv1();
+    boards[boardId] = { lineHist: [], noteList: {} };
+    ack({ boardId });
+    saveBoard(boardId);
+  });
 
   socket.on("load", (data, ack) => {
     if (!boardId || !boards[boardId]) {
       ack({ status: "NOT_FOUND" });
     }
-    socket.join(boardId);
     ack({ status: "OK", ...boards[boardId] });
   });
 
