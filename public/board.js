@@ -163,7 +163,7 @@ toastr.options = {
     textarea.val(msg);
     textarea.css({ "background-color": color, width: w, height: h });
     textarea.on("keyup mouseup touchend", () => {
-      emitNoteState(note);
+      limitter(() => emitNoteState(note), 100);
     });
 
     if (emit) {
@@ -323,12 +323,13 @@ toastr.options = {
     };
   }
 
-  let previousTime = 0;
+  let limitterTimer = null;
   function limitter(callback, delay) {
-    const time = new Date().getTime();
-    if (time - previousTime >= delay) {
-      previousTime = time;
-      return callback();
+    if (!limitterTimer) {
+      limitterTimer = setTimeout(() => {
+        callback();
+        limitterTimer = null;
+      }, delay);
     }
   }
 
