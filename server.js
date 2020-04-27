@@ -23,21 +23,29 @@ if (REDIS_URL) {
 
 const boards = {};
 
+const saveLimitter = {};
 async function saveBoard(boardId) {
-  redis &&
+  if (!redis || saveLimitter[boardId]) return;
+
+  saveLimitter[boardId] = setTimeout(() => {
     redis.set(
       REDIS_PREFIX + "board-" + boardId,
       JSON.stringify(boards[boardId]),
       "ex",
       REDIS_TTL_SEC
     );
+    delete saveLimitter[boardId];
+    console.log("saveBoard", { boardId });
+  }, 3000);
 }
 async function load() {
   if (redis) {
     const prefix = REDIS_PREFIX + "board-";
     const keys = await redis.keys(prefix + "*");
     for (const key of keys) {
-      boards[key.replace(prefix, "")] = JSON.parse(await redis.get(key));
+      const boardId = key.replace(prefix, "");
+      boards[boardId] = JSON.parse(await redis.get(key));
+      console.log("load", { boardId });
     }
   }
 }
