@@ -51,6 +51,27 @@ async function load() {
 }
 load();
 
+// function for dynamic sorting
+function compareValues(key, order = "asc") {
+  return function (a, b) {
+    if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+      // property doesn't exist on either object
+      return 0;
+    }
+
+    const varA = typeof a[key] === "string" ? a[key].toUpperCase() : a[key];
+    const varB = typeof b[key] === "string" ? b[key].toUpperCase() : b[key];
+
+    let comparison = 0;
+    if (varA > varB) {
+      comparison = 1;
+    } else if (varA < varB) {
+      comparison = -1;
+    }
+    return order == "desc" ? comparison * -1 : comparison;
+  };
+}
+
 function onConnection(socket) {
   const { boardId } = socket.handshake.query;
   let lineHist = [];
@@ -64,7 +85,12 @@ function onConnection(socket) {
 
   socket.on("createBoard", (data, ack) => {
     const boardId = uuidv1();
-    boards[boardId] = { lineHist: [], noteList: {} };
+    boards[boardId] = {
+      lineHist: [],
+      noteList: {},
+      createdTimestamp: new Date().getTime(),
+      boardId,
+    };
     ack({ boardId });
     saveBoard(boardId);
   });
@@ -99,6 +125,11 @@ function onConnection(socket) {
     ack({ status: "OK" });
     socket.broadcast.to(boardId).emit("clearBoard");
     saveBoard(boardId);
+  });
+
+  socket.on("recentBoards", (data, ack) => {
+    const list = Object.values(boards);
+    ack(list.sort(compareValues("createdTimestamp", "desc")).slice(0, 9));
   });
 }
 io.on("connection", onConnection);

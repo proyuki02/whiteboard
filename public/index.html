@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Whiteboard</title>
     <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/index.css" />
     <link
       rel="stylesheet"
       href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css"
@@ -16,7 +17,21 @@
       <div id="title">Whiteboard</div>
     </div>
     <div class="index-content">
-      <button id="create-board-button" class="big-button">NEW BOARD</button>
+      <div class="button-content">
+        <button id="create-board-button" class="big-button">NEW BOARD</button>
+      </div>
+      <div id="recent-content">
+        <div id="recent-title">RECENT BOARDS</div>
+        <div id="boards"></div>
+        <div class="board hidden" id="board-origin">
+          <a class="link" href="#">
+            <div>
+              <canvas class="whiteboard" width="400" height="300"></canvas>
+            </div>
+          </a>
+          <div class="created"></div>
+        </div>
+      </div>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
