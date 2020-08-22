@@ -50,6 +50,11 @@ toastr.options = {
   context.lineJoin = "round";
   context.lineCap = "round";
 
+  const boxLayer = document.getElementById("box-layer");
+  const boxContext = boxLayer.getContext("2d");
+  boxContext.lineJoin = "round";
+  boxContext.lineCap = "round";
+
   canvas.addEventListener("mousedown", onMouseDown, false);
   canvas.addEventListener("mouseup", onMouseUp, false);
   canvas.addEventListener("mouseout", onMouseUp, false);
@@ -61,7 +66,8 @@ toastr.options = {
   canvas.addEventListener("touchcancel", onMouseUp, false);
   canvas.addEventListener("touchmove", throttle(onMouseMove, 10), false);
 
-  $(".colors").click(onPenSelect);
+  $(".color").click(onPenSelect);
+  $(".box").click(onBoxSelect);
   $(".sticky-notes").click(onStickyNoteSelect);
   $(".hand").click(onHandSelect);
   $("#clear-button").click(onClearBoard);
@@ -93,7 +99,7 @@ toastr.options = {
       });
     }
     for (let line of lineHist) {
-      drawLine(line);
+      drawLine(line, false);
     }
     for (let key of Object.keys(noteList)) {
       updateNote(noteList[key]);
@@ -110,14 +116,35 @@ toastr.options = {
     $(".clone-note").remove();
   }
 
-  function drawLine(data, emit) {
-    context.beginPath();
-    context.moveTo(data.x0 - PADDING, data.y0 - PADDING - MENU_HEIGHT);
-    context.lineTo(data.x1 - PADDING, data.y1 - PADDING - MENU_HEIGHT);
-    context.strokeStyle = data.color;
-    context.lineWidth = data.width;
-    context.stroke();
-    context.closePath();
+  function drawLine(data, drawing, emit) {
+    if (data.mode === "box") {
+      const cxt = drawing ? boxContext : context;
+      boxContext.clearRect(
+        0,
+        0,
+        boxContext.canvas.clientWidth,
+        boxContext.canvas.clientHeight
+      );
+      cxt.beginPath();
+      cxt.rect(
+        data.x0 - PADDING,
+        data.y0 - PADDING - MENU_HEIGHT,
+        data.x1 - data.x0,
+        data.y1 - data.y0
+      );
+      cxt.strokeStyle = data.color;
+      cxt.lineWidth = data.width;
+      cxt.stroke();
+      cxt.closePath();
+    } else {
+      context.beginPath();
+      context.moveTo(data.x0 - PADDING, data.y0 - PADDING - MENU_HEIGHT);
+      context.lineTo(data.x1 - PADDING, data.y1 - PADDING - MENU_HEIGHT);
+      context.strokeStyle = data.color;
+      context.lineWidth = data.width;
+      context.stroke();
+      context.closePath();
+    }
 
     if (emit) {
       socket.emit("drawLine", data);
@@ -205,6 +232,9 @@ toastr.options = {
     if (current.mode === "pen") {
       drawing = true;
       handing = false;
+    } else if (current.mode === "box") {
+      drawing = true;
+      handing = false;
     } else if (current.mode === "hand") {
       handing = true;
       drawing = false;
@@ -227,7 +257,9 @@ toastr.options = {
           y1: e.pageY || e.touches[0].pageY,
           color: current.color,
           width: current.width,
+          mode: current.mode,
         },
+        false,
         true
       );
     }
@@ -244,10 +276,23 @@ toastr.options = {
     const x1 = e.pageX || e.touches[0].pageX;
     const y1 = e.pageY || e.touches[0].pageY;
     if (drawing) {
+      const isPenMode = current.mode === "pen";
       drawLine(
-        { x0, y0, x1, y1, color: current.color, width: current.width },
-        true
+        {
+          x0,
+          y0,
+          x1,
+          y1,
+          color: current.color,
+          width: current.width,
+          mode: current.mode,
+        },
+        true,
+        isPenMode
       );
+      if (isPenMode) {
+        saveCurrentPosition(e);
+      }
     }
     if (handing) {
       const orgX = $(window).scrollLeft();
@@ -257,7 +302,6 @@ toastr.options = {
       $(window).scrollLeft(newX);
       $(window).scrollTop(newY);
     }
-    saveCurrentPosition(e);
   }
 
   function onPenSelect(e) {
@@ -267,6 +311,15 @@ toastr.options = {
     current.color = color;
     current.width = width;
     current.mode = "pen";
+    setCursor();
+  }
+
+  function onBoxSelect(e) {
+    const color = e.target.getAttribute("data-color");
+    const width = PEN_WIDTH;
+    current.color = color;
+    current.width = width;
+    current.mode = "box";
     setCursor();
   }
 
@@ -350,6 +403,11 @@ toastr.options = {
         tweakX = 25;
         tweakY = 25;
       }
+    } else if (mode === "box") {
+      unicode = "\uf5cb";
+      size = 24;
+      tweakX = 35;
+      tweakY = 15;
     } else if (mode === "sticky-note") {
       unicode = "\uf249";
       size = 24;

@@ -23,11 +23,17 @@ html {
   background-image: url("background.jpg");
 }
 
-#whiteboard {
+#whiteboard,
+#box-layer {
   position: absolute;
   top: 40px;
   left: 0px;
   margin: 30px;
+}
+#box-layer {
+  pointer-events: none;
+}
+#whiteboard {
   background-color: white;
   filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.6));
 }
@@ -46,6 +52,10 @@ html {
 #title {
   font-weight: bold;
   font-size: 19px;
+}
+#title a {
+  color: white;
+  text-decoration: none;
 }
 #clear-button {
   margin-left: 100px;
@@ -83,6 +93,7 @@ html {
 }
 
 .color,
+.box,
 .sticky-note,
 .hand {
   text-align: center;
@@ -92,11 +103,13 @@ html {
   cursor: pointer;
 }
 .color > i,
+.box > i,
 .sticky-note > i,
 .hand > i {
   vertical-align: sub;
 }
 .color:hover,
+.box:hover,
 .sticky-note:hover,
 .hand:hover {
   background-color: #e0f1f8;
@@ -119,6 +132,13 @@ html {
 }
 .color.white {
   color: black;
+}
+
+.box.black {
+  color: black;
+}
+.box.red {
+  color: red;
 }
 
 .sticky-note.hotpink {
