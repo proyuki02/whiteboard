@@ -129,7 +129,12 @@ function onConnection(socket) {
 
   socket.on("recentBoards", (data, ack) => {
     const list = Object.values(boards);
-    ack(list.sort(compareValues("createdTimestamp", "desc")).slice(0, 9));
+    ack(
+      list
+        .filter((b) => b.createdTimestamp)
+        .sort(compareValues("createdTimestamp", "desc"))
+        .slice(0, 9)
+    );
   });
 }
 io.on("connection", onConnection);
