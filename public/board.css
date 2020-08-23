@@ -60,7 +60,7 @@ textarea {
 }
 
 .color,
-.box,
+.shape,
 .sticky-note,
 .hand {
   text-align: center;
@@ -70,13 +70,13 @@ textarea {
   cursor: pointer;
 }
 .color > i,
-.box > i,
+.shape > i,
 .sticky-note > i,
 .hand > i {
   vertical-align: sub;
 }
 .color:hover,
-.box:hover,
+.shape:hover,
 .sticky-note:hover,
 .hand:hover {
   background-color: #e0f1f8;
@@ -99,13 +99,6 @@ textarea {
 }
 .color.white {
   color: black;
-}
-
-.box.black {
-  color: black;
-}
-.box.red {
-  color: red;
 }
 
 .sticky-note.hotpink {

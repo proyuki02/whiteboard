@@ -67,7 +67,9 @@ toastr.options = {
   canvas.addEventListener("touchmove", throttle(onMouseMove, 10), false);
 
   $(".color").click(onPenSelect);
-  $(".box").click(onBoxSelect);
+  $(".line").click((e) => onSelect(e, "line"));
+  $(".box").click((e) => onSelect(e, "box"));
+  $(".circle").click((e) => onSelect(e, "circle"));
   $(".sticky-notes").click(onStickyNoteSelect);
   $(".hand").click(onHandSelect);
   $("#clear-button").click(onClearBoard);
@@ -117,7 +119,11 @@ toastr.options = {
   }
 
   function drawLine(data, drawing, emit) {
-    if (data.mode === "box") {
+    const x0 = data.x0 - PADDING;
+    const x1 = data.x1 - PADDING;
+    const y0 = data.y0 - PADDING - MENU_HEIGHT;
+    const y1 = data.y1 - PADDING - MENU_HEIGHT;
+    if (["box", "line", "circle"].includes(data.mode)) {
       const cxt = drawing ? boxContext : context;
       boxContext.clearRect(
         0,
@@ -126,12 +132,22 @@ toastr.options = {
         boxContext.canvas.clientHeight
       );
       cxt.beginPath();
-      cxt.rect(
-        data.x0 - PADDING,
-        data.y0 - PADDING - MENU_HEIGHT,
-        data.x1 - data.x0,
-        data.y1 - data.y0
-      );
+      if (data.mode === "line") {
+        cxt.moveTo(x0, y0);
+        cxt.lineTo(x1, y1);
+      } else if (data.mode === "box") {
+        cxt.rect(x0, y0, x1 - x0, y1 - y0);
+      } else if (data.mode === "circle") {
+        const harfW = (x1 - x0) / 2;
+        const harfH = (y1 - y0) / 2;
+        cxt.arc(
+          x0 + harfW,
+          y0 + harfH,
+          Math.max(Math.abs(harfW), Math.abs(harfH)),
+          0,
+          2 * Math.PI
+        );
+      }
       cxt.strokeStyle = data.color;
       cxt.lineWidth = data.width;
       cxt.stroke();
@@ -229,10 +245,7 @@ toastr.options = {
   function onMouseDown(e) {
     $(".note").css("pointer-events", "none");
     saveCurrentPosition(e);
-    if (current.mode === "pen") {
-      drawing = true;
-      handing = false;
-    } else if (current.mode === "box") {
+    if (["pen", "line", "box", "circle"].includes(current.mode)) {
       drawing = true;
       handing = false;
     } else if (current.mode === "hand") {
@@ -311,15 +324,18 @@ toastr.options = {
     current.color = color;
     current.width = width;
     current.mode = "pen";
+    const shapeColor = eraser ? "black" : color;
+    $(".shape").css("color", shapeColor);
     setCursor();
   }
 
-  function onBoxSelect(e) {
-    const color = e.target.getAttribute("data-color");
+  function onSelect(e, mode) {
     const width = PEN_WIDTH;
-    current.color = color;
+    if (current.color === "white") {
+      current.color = "black";
+    }
     current.width = width;
-    current.mode = "box";
+    current.mode = mode;
     setCursor();
   }
 
@@ -403,11 +419,23 @@ toastr.options = {
         tweakX = 25;
         tweakY = 25;
       }
-    } else if (mode === "box") {
-      unicode = "\uf5cb";
+    } else if (mode === "line") {
+      unicode = "\uf547";
       size = 24;
       tweakX = 35;
       tweakY = 15;
+    } else if (mode === "box") {
+      unicode = "\uf0c8";
+      size = 24;
+      tweakX = 35;
+      tweakY = 15;
+      regular = true;
+    } else if (mode === "circle") {
+      unicode = "\uf111";
+      size = 24;
+      tweakX = 35;
+      tweakY = 15;
+      regular = true;
     } else if (mode === "sticky-note") {
       unicode = "\uf249";
       size = 24;
