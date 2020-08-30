@@ -10,13 +10,13 @@ textarea {
 }
 
 #whiteboard,
-#box-layer {
+#shape-layer {
   position: absolute;
   top: 40px;
   left: 0px;
   margin: 30px;
 }
-#box-layer {
+#shape-layer {
   pointer-events: none;
 }
 #whiteboard {

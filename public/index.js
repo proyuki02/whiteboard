@@ -42,6 +42,45 @@ function drawLine(context, data) {
   }
 }
 
+const iconColor = {
+  lightyellow: "gold",
+  pink: "hotpink",
+};
+
+function drawNote(context, data) {
+  const x = calc(data.x) + 15;
+  const y = calc(data.y) + 15;
+  context.font = `900 12px "Font Awesome 5 Free"`;
+  context.fillStyle = iconColor[data.color];
+  context.fillText("\uf249", x, y);
+}
+
+function updateRecentBoards(boards) {
+  for (const board of boards) {
+    console.log(board);
+    const boardDiv = $("#board-origin").clone();
+    boardDiv.attr("id", board.boardId);
+    boardDiv
+      .find(".created")
+      .text(new Date(board.createdTimestamp).toLocaleString("ja"));
+    boardDiv.find(".link").attr("href", "/board/" + board.boardId);
+
+    const whiteboard = boardDiv.find(".whiteboard")[0];
+    const context = whiteboard.getContext("2d");
+    context.lineJoin = "round";
+    context.lineCap = "round";
+    for (const line of board.lineHist) {
+      drawLine(context, line);
+    }
+    for (const key of Object.keys(board.noteList)) {
+      drawNote(context, board.noteList[key]);
+    }
+
+    boardDiv.removeClass("hidden");
+    $("#boards").append(boardDiv);
+  }
+}
+
 // config
 (function () {
   const socket = io();
@@ -52,26 +91,14 @@ function drawLine(context, data) {
     });
   });
 
-  socket.emit("recentBoards", null, (boards) => {
-    for (const board of boards) {
-      console.log(board);
-      const boardDiv = $("#board-origin").clone();
-      boardDiv.attr("id", board.boardId);
-      boardDiv
-        .find(".created")
-        .text(new Date(board.createdTimestamp).toLocaleString("ja"));
-      boardDiv.find(".link").attr("href", "/board/" + board.boardId);
-
-      const whiteboard = boardDiv.find(".whiteboard")[0];
-      const context = whiteboard.getContext("2d");
-      context.lineJoin = "round";
-      context.lineCap = "round";
-      for (const line of board.lineHist) {
-        drawLine(context, line);
-      }
-
-      boardDiv.removeClass("hidden");
-      $("#boards").append(boardDiv);
-    }
+  WebFont.load({
+    custom: {
+      families: ["Font Awesome 5 Free"],
+    },
+    active: function () {
+      socket.emit("recentBoards", null, (boards) => {
+        updateRecentBoards(boards);
+      });
+    },
   });
 })();

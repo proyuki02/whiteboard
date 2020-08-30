@@ -50,10 +50,10 @@ toastr.options = {
   context.lineJoin = "round";
   context.lineCap = "round";
 
-  const boxLayer = document.getElementById("box-layer");
-  const boxContext = boxLayer.getContext("2d");
-  boxContext.lineJoin = "round";
-  boxContext.lineCap = "round";
+  const shapeLayer = document.getElementById("shape-layer");
+  const shapeContext = shapeLayer.getContext("2d");
+  shapeContext.lineJoin = "round";
+  shapeContext.lineCap = "round";
 
   canvas.addEventListener("mousedown", onMouseDown, false);
   canvas.addEventListener("mouseup", onMouseUp, false);
@@ -124,12 +124,12 @@ toastr.options = {
     const y0 = data.y0 - PADDING - MENU_HEIGHT;
     const y1 = data.y1 - PADDING - MENU_HEIGHT;
     if (["box", "line", "circle"].includes(data.mode)) {
-      const cxt = drawing ? boxContext : context;
-      boxContext.clearRect(
+      const cxt = drawing ? shapeContext : context;
+      shapeContext.clearRect(
         0,
         0,
-        boxContext.canvas.clientWidth,
-        boxContext.canvas.clientHeight
+        shapeContext.canvas.clientWidth,
+        shapeContext.canvas.clientHeight
       );
       cxt.beginPath();
       if (data.mode === "line") {
@@ -216,13 +216,16 @@ toastr.options = {
 
   function emitNoteState(note) {
     const id = note.attr("id");
-    const x = note.css("left");
-    const y = note.css("top");
+    const x = parseInt(note.css("left"), 10);
+    const y = parseInt(note.css("top"), 10);
     const textarea = note.find(".expanding");
-    const w = textarea.css("width");
-    const h = textarea.css("height");
+    const w = parseInt(textarea.css("width"), 10);
+    const h = parseInt(textarea.css("height"), 10);
     const msg = textarea.val();
-    const color = textarea.css("background-color");
+    let color = textarea.css("background-color");
+    if (color === "rgb(255, 255, 224)") {
+      color = "lightyellow";
+    }
     socket.emit("updateNote", { id, x, y, w, h, msg, color });
   }
 
@@ -358,8 +361,8 @@ toastr.options = {
     const x = current.x - PADDING - 40;
     const y = current.y - PADDING - MENU_HEIGHT + 5;
     const msg = signatureFormat($("#signature").val());
-    const w = $("#note-origin").css("width");
-    const h = $("#note-origin").css("height");
+    const w = parseInt($("#note-origin").css("width"), 10);
+    const h = parseInt($("#note-origin").css("height"), 10);
     updateNote({ id, x, y, w, h, msg, color }, true);
   }
 
