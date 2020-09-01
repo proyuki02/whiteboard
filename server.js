@@ -108,15 +108,25 @@ function onConnection(socket) {
     saveBoard(boardId);
   });
 
-  socket.on("updateNote", (data) => {
-    noteList[data.id] = data;
-    socket.broadcast.to(boardId).emit("updateNote", data);
+  socket.on("hideLine", (data) => {
+    for (const line of lineHist) {
+      if (line.id === data.id) {
+        line.hidden = data.hidden;
+      }
+    }
+    io.to(boardId).emit("redraw", boards[boardId]);
     saveBoard(boardId);
   });
 
-  socket.on("deleteNote", (data) => {
-    delete noteList[data.id];
-    socket.broadcast.to(boardId).emit("deleteNote", data);
+  socket.on("updateNote", (data) => {
+    noteList[data.id] = { ...noteList[data.id], ...data };
+    socket.broadcast.to(boardId).emit("updateNote", noteList[data.id]);
+    saveBoard(boardId);
+  });
+
+  socket.on("hideNote", (data) => {
+    noteList[data.id].hidden = data.hidden;
+    io.to(boardId).emit("hideNote", data);
     saveBoard(boardId);
   });
 

@@ -40,6 +40,7 @@ $ REDIS_URL=redis://localhost:6379 REDIS_TTL_SEC=86400 npm start
 - Draw on the whiteboard and all other users will see you drawings live.
 - Sticky notes with signature support.
 - Multiple whiteboards support.
+- Undo/Redo support.
 - Redis support (optional).
 
 ## References

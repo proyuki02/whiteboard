@@ -5,6 +5,7 @@ function calc(position, y) {
   return (position - 30 - (y ? 40 : 0)) / RATE;
 }
 function drawLine(context, data) {
+  if (data.hidden) return;
   const x0 = calc(data.x0);
   const x1 = calc(data.x1);
   const y0 = calc(data.y0, true);
@@ -48,10 +49,11 @@ const iconColor = {
 };
 
 function drawNote(context, data) {
+  if (data.hidden) return;
   const x = calc(data.x) + 15;
   const y = calc(data.y) + 15;
   context.font = `900 12px "Font Awesome 5 Free"`;
-  context.fillStyle = iconColor[data.color];
+  context.fillStyle = iconColor[data.color] || "gold";
   context.fillText("\uf249", x, y);
 }
 

@@ -28,6 +28,7 @@ toastr.options = {
   const MENU_HEIGHT = 40;
   const PADDING = 30;
   const current = {
+    id: "",
     x: 0,
     y: 0,
     color: "black",
@@ -44,6 +45,20 @@ toastr.options = {
   });
   let drawing = false;
   let handing = false;
+
+  const actionHistory = [];
+  let actionPointer = -1;
+  function putAction(data) {
+    if (actionHistory.length - 1 > actionPointer) {
+      actionHistory.splice(actionPointer + 1);
+    }
+    actionHistory.push(data);
+    actionPointer += 1;
+  }
+  function resetActionHistory() {
+    actionHistory.splice(0);
+    actionPointer = -1;
+  }
 
   const canvas = document.getElementById("whiteboard");
   const context = canvas.getContext("2d");
@@ -72,6 +87,8 @@ toastr.options = {
   $(".circle").click((e) => onSelect(e, "circle"));
   $(".sticky-notes").click(onStickyNoteSelect);
   $(".hand").click(onHandSelect);
+  $(".undo").click(onUndo);
+  $(".redo").click(onRedo);
   $("#clear-button").click(onClearBoard);
 
   const path = window.location.pathname;
@@ -80,12 +97,14 @@ toastr.options = {
   const socket = io("?boardId=" + boardId);
   socket.on("drawLine", drawLine);
   socket.on("updateNote", updateNote);
-  socket.on("deleteNote", deleteNote);
+  socket.on("redraw", redraw);
+  socket.on("hideNote", onHideNote);
   socket.on("clearBoard", () => {
     clearBoard();
     toastr.info("Someone cleared the board.", "Infomation");
   });
   socket.emit("load", null, (data) => {
+    console.log("load", data);
     const { status, lineHist, noteList } = data;
     if (status === "NOT_FOUND") {
       $.confirm({
@@ -108,6 +127,19 @@ toastr.options = {
     }
   });
 
+  function redraw(data) {
+    const { lineHist } = data;
+    context.clearRect(
+      0,
+      0,
+      context.canvas.clientWidth,
+      context.canvas.clientHeight
+    );
+    for (const line of lineHist) {
+      drawLine(line, false);
+    }
+  }
+
   function clearBoard() {
     context.clearRect(
       0,
@@ -116,9 +148,48 @@ toastr.options = {
       context.canvas.clientHeight
     );
     $(".clone-note").remove();
+    resetActionHistory();
+  }
+
+  function onUndo() {
+    if (actionPointer < 0) {
+      toastr.info("You can't undo anymore.", "Infomation");
+      return;
+    }
+    const action = actionHistory[actionPointer];
+    actionPointer -= 1;
+    if (action.act === "drawLine") {
+      socket.emit("hideLine", { id: action.id, hidden: true });
+    } else if (action.act === "deleteNote") {
+      socket.emit("hideNote", { id: action.id, hidden: false });
+    } else if (action.act === "createNote") {
+      socket.emit("hideNote", { id: action.id, hidden: true });
+    } else if (action.act === "changeNote") {
+      updateNote(action.old, true);
+    }
+  }
+
+  function onRedo() {
+    if (actionPointer === actionHistory.length - 1) {
+      toastr.info("You can't redo anymore.", "Infomation");
+      return;
+    }
+    actionPointer += 1;
+    const action = actionHistory[actionPointer];
+    if (action.act === "drawLine") {
+      socket.emit("hideLine", { id: action.id, hidden: false });
+    } else if (action.act === "deleteNote") {
+      socket.emit("hideNote", { id: action.id, hidden: true });
+    } else if (action.act === "createNote") {
+      socket.emit("hideNote", { id: action.id, hidden: false });
+    } else if (action.act === "changeNote") {
+      updateNote(action.new, true);
+    }
   }
 
   function drawLine(data, drawing, emit) {
+    if (data.hidden) return;
+
     const x0 = data.x0 - PADDING;
     const x1 = data.x1 - PADDING;
     const y0 = data.y0 - PADDING - MENU_HEIGHT;
@@ -167,14 +238,30 @@ toastr.options = {
     }
   }
 
+  let noteCache = {};
   function updateNote(data, emit) {
-    const { id, x, y, w, h, msg, color } = data;
+    const { id, x, y, w, h, msg, color, hidden } = data;
     let note = $(`#${id}`);
     if (!note.length) {
       note = $("#note-origin").clone();
       note.attr("id", id);
       note.removeClass("hidden");
       note.addClass("clone-note");
+      note.mouseenter(() => {
+        noteCache = getNoteInfo(note);
+      });
+      note.mouseleave(() => {
+        const noteInfo = getNoteInfo(note);
+        if (
+          noteCache.x !== noteInfo.x ||
+          noteCache.y !== noteInfo.y ||
+          noteCache.w !== noteInfo.w ||
+          noteCache.h !== noteInfo.h ||
+          noteCache.msg !== noteInfo.msg
+        ) {
+          putAction({ act: "changeNote", id, old: noteCache, new: noteInfo });
+        }
+      });
 
       const textarea = note.find(".expanding");
       note.draggable({
@@ -187,7 +274,7 @@ toastr.options = {
 
       const delButton = note.find(".delete-note");
       delButton.click(() => {
-        deleteNote({ id }, true);
+        deleteNote(id);
       });
 
       setTimeout(() => autosize(textarea), 0);
@@ -204,17 +291,26 @@ toastr.options = {
     note.css({ left: x, top: y });
     const textarea = note.find(".expanding");
     textarea.val(msg);
-    textarea.css({ "background-color": color, width: w, height: h });
+    textarea.css({ width: w, height: h });
+    if (color) {
+      textarea.css({ "background-color": color });
+    }
     textarea.on("keyup mouseup touchend", () => {
       limitter(() => emitNoteState(note), 100);
     });
 
+    if (hidden) {
+      note.hide();
+    } else {
+      note.show();
+    }
+
     if (emit) {
-      socket.emit("updateNote", { id, x, y, w, h, msg, color });
+      socket.emit("updateNote", { id, x, y, w, h, msg, color, hidden });
     }
   }
 
-  function emitNoteState(note) {
+  function getNoteInfo(note) {
     const id = note.attr("id");
     const x = parseInt(note.css("left"), 10);
     const y = parseInt(note.css("top"), 10);
@@ -222,21 +318,25 @@ toastr.options = {
     const w = parseInt(textarea.css("width"), 10);
     const h = parseInt(textarea.css("height"), 10);
     const msg = textarea.val();
-    let color = textarea.css("background-color");
-    if (color === "rgb(255, 255, 224)") {
-      color = "lightyellow";
-    }
-    socket.emit("updateNote", { id, x, y, w, h, msg, color });
+    const hiden = note.css("display") === "block";
+    return { id, x, y, w, h, msg, hiden };
   }
 
-  function deleteNote(data, emit) {
-    const { id } = data;
-    const note = $(`#${id}`);
-    if (note.length) {
-      note.remove();
-    }
-    if (emit) {
-      socket.emit("deleteNote", { id });
+  function emitNoteState(note) {
+    const { id, x, y, w, h, msg } = getNoteInfo(note);
+    socket.emit("updateNote", { id, x, y, w, h, msg });
+  }
+
+  function deleteNote(id) {
+    socket.emit("hideNote", { id, hidden: true });
+    putAction({ act: "deleteNote", id });
+  }
+
+  function onHideNote(data) {
+    if (data.hidden) {
+      $(`#${data.id}`).hide();
+    } else {
+      $(`#${data.id}`).show();
     }
   }
 
@@ -251,6 +351,7 @@ toastr.options = {
     if (["pen", "line", "box", "circle"].includes(current.mode)) {
       drawing = true;
       handing = false;
+      current.id = generateUuid();
     } else if (current.mode === "hand") {
       handing = true;
       drawing = false;
@@ -274,10 +375,12 @@ toastr.options = {
           color: current.color,
           width: current.width,
           mode: current.mode,
+          id: current.id,
         },
         false,
         true
       );
+      putAction({ act: "drawLine", id: current.id });
     }
     if (handing) {
       handing = false;
@@ -302,6 +405,7 @@ toastr.options = {
           color: current.color,
           width: current.width,
           mode: current.mode,
+          id: current.id,
         },
         true,
         isPenMode
@@ -363,7 +467,8 @@ toastr.options = {
     const msg = signatureFormat($("#signature").val());
     const w = parseInt($("#note-origin").css("width"), 10);
     const h = parseInt($("#note-origin").css("height"), 10);
-    updateNote({ id, x, y, w, h, msg, color }, true);
+    updateNote({ id, x, y, w, h, msg, color, hidden: false }, true);
+    putAction({ act: "createNote", id });
   }
 
   function onClearBoard() {
