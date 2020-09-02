@@ -90,6 +90,15 @@ toastr.options = {
   $(".undo").click(onUndo);
   $(".redo").click(onRedo);
   $("#clear-button").click(onClearBoard);
+  addEventListener("keydown", (event) => {
+    if (event.ctrlKey || event.metaKey) {
+      if (event.key === "z") {
+        onUndo();
+      } else if (event.key === "y") {
+        onRedo();
+      }
+    }
+  });
 
   const path = window.location.pathname;
   const boardId = path.slice(path.lastIndexOf("/") + 1);
