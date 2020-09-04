@@ -35,6 +35,13 @@ const MODE = {
   rock: "rock",
 };
 
+const ACTION = {
+  drawLine: "drawLine",
+  deleteNote: "deleteNote",
+  createNote: "createNote",
+  changeNote: "changeNote",
+};
+
 (function () {
   const MENU_HEIGHT = 40;
   const PADDING = 30;
@@ -178,13 +185,13 @@ const MODE = {
     }
     const action = actionHistory[actionPointer];
     actionPointer -= 1;
-    if (action.act === "drawLine") {
+    if (action.act === ACTION.drawLine) {
       socket.emit("hideLine", { id: action.id, hidden: true });
-    } else if (action.act === "deleteNote") {
+    } else if (action.act === ACTION.deleteNote) {
       socket.emit("hideNote", { id: action.id, hidden: false });
-    } else if (action.act === "createNote") {
+    } else if (action.act === ACTION.createNote) {
       socket.emit("hideNote", { id: action.id, hidden: true });
-    } else if (action.act === "changeNote") {
+    } else if (action.act === ACTION.changeNote) {
       updateNote(action.old, true);
     }
   }
@@ -196,13 +203,13 @@ const MODE = {
     }
     actionPointer += 1;
     const action = actionHistory[actionPointer];
-    if (action.act === "drawLine") {
+    if (action.act === ACTION.drawLine) {
       socket.emit("hideLine", { id: action.id, hidden: false });
-    } else if (action.act === "deleteNote") {
+    } else if (action.act === ACTION.deleteNote) {
       socket.emit("hideNote", { id: action.id, hidden: true });
-    } else if (action.act === "createNote") {
+    } else if (action.act === ACTION.createNote) {
       socket.emit("hideNote", { id: action.id, hidden: false });
-    } else if (action.act === "changeNote") {
+    } else if (action.act === ACTION.changeNote) {
       updateNote(action.new, true);
     }
   }
@@ -279,7 +286,12 @@ const MODE = {
           noteCache.h !== noteInfo.h ||
           noteCache.msg !== noteInfo.msg
         ) {
-          putAction({ act: "changeNote", id, old: noteCache, new: noteInfo });
+          putAction({
+            act: ACTION.changeNote,
+            id,
+            old: noteCache,
+            new: noteInfo,
+          });
         }
       });
 
@@ -349,7 +361,7 @@ const MODE = {
 
   function deleteNote(id) {
     socket.emit("hideNote", { id, hidden: true });
-    putAction({ act: "deleteNote", id });
+    putAction({ act: ACTION.deleteNote, id });
   }
 
   function onHideNote(data) {
@@ -400,7 +412,7 @@ const MODE = {
         false,
         true
       );
-      putAction({ act: "drawLine", id: current.id });
+      putAction({ act: ACTION.drawLine, id: current.id });
     }
     if (handing) {
       handing = false;
@@ -488,7 +500,7 @@ const MODE = {
     const w = parseInt($("#note-origin").css("width"), 10);
     const h = parseInt($("#note-origin").css("height"), 10);
     updateNote({ id, x, y, w, h, msg, color, hidden: false }, true);
-    putAction({ act: "createNote", id });
+    putAction({ act: ACTION.createNote, id });
   }
 
   function onClearBoard() {
