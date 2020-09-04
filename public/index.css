@@ -23,7 +23,8 @@
   border: 2px solid rgba(0, 0, 0, 0.5);
 }
 .whiteboard {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: #fff;
+  filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.6));
 }
 #recent-content {
   margin-left: auto;
@@ -52,4 +53,5 @@
   position: absolute;
   bottom: 10px;
   right: 10px;
+  background-color: #fff;
 }
