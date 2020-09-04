@@ -383,7 +383,7 @@ const ACTION = {
     if ([MODE.pen, MODE.line, MODE.box, MODE.circle].includes(current.mode)) {
       drawing = true;
       handing = false;
-      current.id = generateUuid();
+      current.id = generateUniqueId();
     } else if (current.mode === MODE.hand) {
       handing = true;
       drawing = false;
@@ -493,7 +493,7 @@ const ACTION = {
 
   function onNoteCreate() {
     const color = current.color === "hotpink" ? "pink" : "lightyellow";
-    const id = "note-" + generateUuid();
+    const id = "note-" + generateUniqueId();
     const x = current.x - PADDING - 40;
     const y = current.y - PADDING - MENU_HEIGHT + 5;
     const msg = signatureFormat($("#signature").val());
@@ -611,10 +611,16 @@ const ACTION = {
     );
   }
 
-  const generateUuid = (
-    $ = (a, b) => (Math.floor(Math.random() * a) + b).toString(16)
-  ) =>
-    "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
-      .replace(/x/g, (_) => $(16, 0))
-      .replace(/y/g, (_) => $(4, 8));
+  function generateUniqueId() {
+    const strong = 65535;
+    return (
+      new Date().getTime().toString(16) +
+      "-" +
+      Math.floor(strong * Math.random()).toString(16) +
+      "-" +
+      Math.floor(strong * Math.random()).toString(16) +
+      "-" +
+      Math.floor(strong * Math.random()).toString(16)
+    );
+  }
 })();
