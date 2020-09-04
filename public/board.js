@@ -24,6 +24,17 @@ toastr.options = {
   hideMethod: "fadeOut",
 };
 
+// define
+const MODE = {
+  pen: "pen",
+  line: "line",
+  box: "box",
+  circle: "circle",
+  sticky_note: "sticky-note",
+  hand: "hand",
+  rock: "rock",
+};
+
 (function () {
   const MENU_HEIGHT = 40;
   const PADDING = 30;
@@ -33,7 +44,7 @@ toastr.options = {
     y: 0,
     color: "black",
     width: PEN_WIDTH,
-    mode: "pen",
+    mode: MODE.pen,
   };
   WebFont.load({
     custom: {
@@ -82,9 +93,9 @@ toastr.options = {
   canvas.addEventListener("touchmove", throttle(onMouseMove, 10), false);
 
   $(".color").click(onPenSelect);
-  $(".line").click((e) => onSelect(e, "line"));
-  $(".box").click((e) => onSelect(e, "box"));
-  $(".circle").click((e) => onSelect(e, "circle"));
+  $(".line").click((e) => onSelect(e, MODE.line));
+  $(".box").click((e) => onSelect(e, MODE.box));
+  $(".circle").click((e) => onSelect(e, MODE.circle));
   $(".sticky-notes").click(onStickyNoteSelect);
   $(".hand").click(onHandSelect);
   $(".undo").click(onUndo);
@@ -203,7 +214,7 @@ toastr.options = {
     const x1 = data.x1 - PADDING;
     const y0 = data.y0 - PADDING - MENU_HEIGHT;
     const y1 = data.y1 - PADDING - MENU_HEIGHT;
-    if (["box", "line", "circle"].includes(data.mode)) {
+    if ([MODE.box, MODE.line, MODE.circle].includes(data.mode)) {
       const cxt = drawing ? shapeContext : context;
       shapeContext.clearRect(
         0,
@@ -212,12 +223,12 @@ toastr.options = {
         shapeContext.canvas.clientHeight
       );
       cxt.beginPath();
-      if (data.mode === "line") {
+      if (data.mode === MODE.line) {
         cxt.moveTo(x0, y0);
         cxt.lineTo(x1, y1);
-      } else if (data.mode === "box") {
+      } else if (data.mode === MODE.box) {
         cxt.rect(x0, y0, x1 - x0, y1 - y0);
-      } else if (data.mode === "circle") {
+      } else if (data.mode === MODE.circle) {
         const harfW = (x1 - x0) / 2;
         const harfH = (y1 - y0) / 2;
         cxt.arc(
@@ -357,14 +368,14 @@ toastr.options = {
   function onMouseDown(e) {
     $(".note").css("pointer-events", "none");
     saveCurrentPosition(e);
-    if (["pen", "line", "box", "circle"].includes(current.mode)) {
+    if ([MODE.pen, MODE.line, MODE.box, MODE.circle].includes(current.mode)) {
       drawing = true;
       handing = false;
       current.id = generateUuid();
-    } else if (current.mode === "hand") {
+    } else if (current.mode === MODE.hand) {
       handing = true;
       drawing = false;
-      current.mode = "rock";
+      current.mode = MODE.rock;
       setCursor();
     } else {
       onNoteCreate();
@@ -393,7 +404,7 @@ toastr.options = {
     }
     if (handing) {
       handing = false;
-      current.mode = "hand";
+      current.mode = MODE.hand;
       setCursor();
     }
   }
@@ -404,7 +415,7 @@ toastr.options = {
     const x1 = e.pageX || e.touches[0].pageX;
     const y1 = e.pageY || e.touches[0].pageY;
     if (drawing) {
-      const isPenMode = current.mode === "pen";
+      const isPenMode = current.mode === MODE.pen;
       drawLine(
         {
           x0,
@@ -439,7 +450,7 @@ toastr.options = {
     const width = eraser ? ERASER_WIDTH : PEN_WIDTH;
     current.color = color;
     current.width = width;
-    current.mode = "pen";
+    current.mode = MODE.pen;
     const shapeColor = eraser ? "black" : color;
     $(".shape").css("color", shapeColor);
     setCursor();
@@ -458,13 +469,13 @@ toastr.options = {
   function onStickyNoteSelect(e) {
     const color = e.target.getAttribute("data-color");
     current.color = color;
-    current.mode = "sticky-note";
+    current.mode = MODE.sticky_note;
     setCursor();
   }
 
   function onHandSelect(e) {
     current.color = "black";
-    current.mode = "hand";
+    current.mode = MODE.hand;
     setCursor();
   }
 
@@ -523,7 +534,7 @@ toastr.options = {
     const mode = current.mode;
     let color = current.color;
     let unicode, size, tweakX, tweakY, regular;
-    if (mode === "pen") {
+    if (mode === MODE.pen) {
       if (color === "white") {
         unicode = "\uf12d";
         size = 48;
@@ -536,35 +547,35 @@ toastr.options = {
         tweakX = 25;
         tweakY = 25;
       }
-    } else if (mode === "line") {
+    } else if (mode === MODE.line) {
       unicode = "\uf547";
       size = 24;
       tweakX = 35;
       tweakY = 15;
-    } else if (mode === "box") {
+    } else if (mode === MODE.box) {
       unicode = "\uf0c8";
       size = 24;
       tweakX = 35;
       tweakY = 15;
       regular = true;
-    } else if (mode === "circle") {
+    } else if (mode === MODE.circle) {
       unicode = "\uf111";
       size = 24;
       tweakX = 35;
       tweakY = 15;
       regular = true;
-    } else if (mode === "sticky-note") {
+    } else if (mode === MODE.sticky_note) {
       unicode = "\uf249";
       size = 24;
       tweakX = 25;
       tweakY = 25;
-    } else if (mode === "hand") {
+    } else if (mode === MODE.hand) {
       unicode = "\uf256";
       size = 24;
       tweakX = 25;
       tweakY = 25;
       regular = true;
-    } else if (mode === "rock") {
+    } else if (mode === MODE.rock) {
       unicode = "\uf255";
       size = 24;
       tweakX = 25;
