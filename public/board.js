@@ -63,6 +63,7 @@ const ACTION = {
   });
   let drawing = false;
   let handing = false;
+  let editing = false;
 
   const actionHistory = [];
   let actionPointer = -1;
@@ -109,7 +110,7 @@ const ACTION = {
   $(".redo").click(onRedo);
   $("#clear-button").click(onClearBoard);
   addEventListener("keydown", (event) => {
-    if (event.ctrlKey || event.metaKey) {
+    if ((event.ctrlKey || event.metaKey) && !editing) {
       if (event.key === "z") {
         onUndo();
       } else if (event.key === "y") {
@@ -302,6 +303,12 @@ const ACTION = {
           textarea.focus();
           emitNoteState(note);
         },
+      });
+      textarea.focusin(() => {
+        editing = true;
+      });
+      textarea.focusout(() => {
+        editing = false;
       });
 
       const delButton = note.find(".delete-note");
