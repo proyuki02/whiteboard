@@ -2,7 +2,7 @@
 
 A simple collaborative whiteboard.
 
-![capture](https://user-images.githubusercontent.com/40527123/78779832-9c46bd80-79d8-11ea-965d-469890624175.png)
+![capture](https://user-images.githubusercontent.com/40527123/98313860-1f380100-2018-11eb-9000-b3a583883335.png)
 
 ## How to use
 
