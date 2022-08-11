@@ -4,6 +4,10 @@ A simple collaborative whiteboard.
 
 ![capture](https://user-images.githubusercontent.com/40527123/98313860-1f380100-2018-11eb-9000-b3a583883335.png)
 
+## Demo Site
+
+https://proyuki02-whiteboard.glitch.me/
+
 ## How to use
 
 ```
@@ -42,12 +46,6 @@ $ REDIS_URL=redis://localhost:6379 REDIS_TTL_SEC=86400 npm start
 - Multiple whiteboards support.
 - Undo/Redo support.
 - Redis support (optional).
-
-## References
-
-- [Socket.IO Collaborative Whiteboard](https://socket.io/demos/whiteboard/)
-- [Web Whiteboard](https://www.webwhiteboard.com)
-- [オンラインふせんアプリを作りたい人のためのファーストガイド - Qiita](https://qiita.com/iotas/items/fbf4994877e5c2053787)
 
 ## License
 
