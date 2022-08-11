@@ -6,12 +6,18 @@
   "dependencies": {
     "express": "^4.17.1",
     "ioredis": "^4.16.1",
-    "socket.io": "^2.4.0",
+    "socket.io": "^4.5.1",
     "uuid": "^7.0.3"
   },
   "scripts": {
     "start": "node server"
   },
   "author": "proyuki02",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": "^16.16.0"
+  },
+  "volta": {
+    "node": "16.16.0"
+  }
 }
