@@ -6,7 +6,7 @@
   "dependencies": {
     "express": "^4.18.2",
     "ioredis": "^4.16.1",
-    "socket.io": "^4.5.1",
+    "socket.io": "^4.6.1",
     "uuid": "^7.0.3"
   },
   "scripts": {
