@@ -4,7 +4,7 @@
   "description": "A simple collaborative whiteboard",
   "main": "index.js",
   "dependencies": {
-    "express": "^4.19.2",
+    "express": "^4.21.2",
     "ioredis": "^4.16.1",
     "socket.io": "^4.7.5",
     "uuid": "^7.0.3"
