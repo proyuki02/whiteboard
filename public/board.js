@@ -155,6 +155,14 @@ const ACTION = {
     }
   });
 
+  // Call setCursor on initialization to ensure the cursor image is loaded
+  setCursor();
+
+  // Ensure setCursor is called after the DOM is fully loaded
+  window.addEventListener("load", () => {
+    setCursor();
+  });
+
   function redraw(data) {
     const { lineHist } = data;
     context.clearRect(
